@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CreditCard, Smartphone, Banknote, CheckCircle } from "lucide-react";
+import { CreditCard, Smartphone, Banknote, CheckCircle, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { apiRequest } from "@/lib/api";
+import { toast } from "sonner";
 
 const methods = [
   { id: "upi", label: "UPI", icon: Smartphone, desc: "Pay via UPI ID" },
@@ -15,11 +17,36 @@ const methods = [
 
 const Payment = () => {
   const [selected, setSelected] = useState("upi");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const parcelDetails = location.state?.parcelDetails;
 
-  const handlePay = (e: React.FormEvent) => {
+  const handlePay = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate("/user/confirmation");
+    setIsLoading(true);
+    
+    try {
+      const data = await apiRequest("/parcels/", {
+        method: "POST",
+        body: JSON.stringify({
+          sender_name: parcelDetails?.senderName || "Unknown",
+          sender_phone: parcelDetails?.senderPhone || "",
+          receiver_name: parcelDetails?.receiverName || "Unknown",
+          receiver_phone: parcelDetails?.receiverPhone || "",
+          origin_city: parcelDetails?.originCity || "Unknown",
+          destination_city: parcelDetails?.destinationCity || "Unknown",
+          weight: parcelDetails?.weight || 1.0
+        }),
+      });
+
+      toast.success("Parcel booked successfully!");
+      navigate("/user/confirmation", { state: { trackingNumber: data.tracking_number } });
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -54,25 +81,8 @@ const Payment = () => {
               ))}
             </div>
 
-            {selected === "upi" && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-4">
-                <Label className="text-white/70">UPI ID</Label>
-                <Input className="mt-1 border-white/10 bg-white/5 text-white placeholder:text-white/30 focus-visible:ring-orange-500/50" placeholder="yourname@upi" defaultValue="john@okaxis" />
-              </motion.div>
-            )}
-
-            {selected === "card" && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-4 space-y-3">
-                <div><Label className="text-white/70">Card Number</Label><Input className="mt-1 border-white/10 bg-white/5 text-white placeholder:text-white/30 focus-visible:ring-orange-500/50" placeholder="1234 5678 9012 3456" /></div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div><Label className="text-white/70">Expiry</Label><Input className="mt-1 border-white/10 bg-white/5 text-white placeholder:text-white/30 focus-visible:ring-orange-500/50" placeholder="MM/YY" /></div>
-                  <div><Label className="text-white/70">CVV</Label><Input className="mt-1 border-white/10 bg-white/5 text-white placeholder:text-white/30 focus-visible:ring-orange-500/50" placeholder="123" type="password" /></div>
-                </div>
-              </motion.div>
-            )}
-
-            <Button onClick={handlePay} className="mt-6 w-full bg-gradient-to-r from-orange-500 to-violet-600 text-white hover:opacity-90">
-              {selected === "cod" ? "Confirm Booking" : "Pay ₹185"}
+            <Button onClick={handlePay} disabled={isLoading} className="mt-6 w-full bg-gradient-to-r from-orange-500 to-violet-600 text-white hover:opacity-90">
+              {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : (selected === "cod" ? "Confirm Booking" : `Pay ₹${Math.round((parcelDetails?.weight || 1.0) * 50)}`)}
             </Button>
           </div>
         </div>
@@ -81,12 +91,11 @@ const Payment = () => {
           <div className="rounded-xl border border-white/[0.08] bg-white/[0.04] p-6 backdrop-blur-sm">
             <h3 className="mb-4 font-display text-lg font-semibold text-white">Order Summary</h3>
             <div className="space-y-3 text-sm">
-              <div className="flex justify-between"><span className="text-white/50">From</span><span className="text-white">Pune, MH</span></div>
-              <div className="flex justify-between"><span className="text-white/50">To</span><span className="text-white">New Delhi, DL</span></div>
-              <div className="flex justify-between"><span className="text-white/50">Weight</span><span className="text-white">2.5 kg</span></div>
-              <div className="flex justify-between"><span className="text-white/50">Type</span><span className="text-white">Standard</span></div>
+              <div className="flex justify-between"><span className="text-white/50">From</span><span className="text-white">{parcelDetails?.originCity || "Unknown"}</span></div>
+              <div className="flex justify-between"><span className="text-white/50">To</span><span className="text-white">{parcelDetails?.destinationCity || "Unknown"}</span></div>
+              <div className="flex justify-between"><span className="text-white/50">Weight</span><span className="text-white">{parcelDetails?.weight || 1.0} kg</span></div>
               <div className="border-t border-white/[0.08] pt-3 flex justify-between font-semibold text-white">
-                <span>Total</span><span className="text-orange-400">₹185</span>
+                <span>Total</span><span className="text-orange-400">₹{Math.round((parcelDetails?.weight || 1.0) * 50)}</span>
               </div>
             </div>
           </div>

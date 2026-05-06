@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, MapPin, Copy, Clock, Shield } from "lucide-react";
@@ -6,7 +6,8 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 
 const OrderConfirmation = () => {
-  const trackingId = "AP-20260004";
+  const location = useLocation();
+  const trackingId = location.state?.trackingNumber || "N/A";
 
   return (
     <DashboardLayout role="user">
