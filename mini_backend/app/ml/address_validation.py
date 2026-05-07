@@ -10,11 +10,10 @@ class AddressValidationModel:
     """
     def __init__(self):
         # We can load a real ML model here later
-        self.state_abbreviations = ["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", 
-                                    "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", 
-                                    "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", 
-                                    "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", 
-                                    "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"]
+        self.states = [
+    "TELANGANA", "ANDHRA PRADESH", "KARNATAKA",
+    "MAHARASHTRA", "TAMIL NADU", "DELHI"
+]
     
     def validate_and_parse(self, raw_address: str) -> Dict[str, Any]:
         """
@@ -34,7 +33,7 @@ class AddressValidationModel:
         warnings = []
         
         # 1. Extract ZIP code (5 digits or 5-4)
-        zip_match = re.search(r'\b\d{5}(?:-\d{4})?\b', raw_address_upper)
+        zip_match = re.search(r'\b\d{6}\b', raw_address_upper)
         if zip_match:
             parsed["postal_code"] = zip_match.group(0)
             raw_address_upper = raw_address_upper.replace(zip_match.group(0), "").strip()
@@ -44,7 +43,7 @@ class AddressValidationModel:
             
         # 2. Extract State
         state_match = None
-        for state in self.state_abbreviations:
+        for state in self.states:
             if re.search(rf'\b{state}\b', raw_address_upper):
                 state_match = state
                 break
