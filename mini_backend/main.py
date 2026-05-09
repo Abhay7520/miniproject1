@@ -7,6 +7,7 @@ from app import models
 from app.ml_utils import AIPostalService, CITY_COORDS, haversine
 from datetime import datetime, timedelta
 import uuid
+import os
 from pydantic import BaseModel
 from typing import List, Optional
 from passlib.context import CryptContext
@@ -16,9 +17,18 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="AIPostal – Smart AI Postal System")
 
+# --- CORS ---
+# allow_credentials=True is INVALID with allow_origins=["*"]
+# Must list exact origins. Read from env var for flexibility.
+allowed_origins_str = os.getenv(
+    "ALLOWED_ORIGINS",
+    "http://localhost:5173,http://localhost:8080,https://miniproject1-e7bh-omgzs3onz-abhaylalganj05-4838s-projects.vercel.app"
+)
+allowed_origins = [o.strip() for o in allowed_origins_str.split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
