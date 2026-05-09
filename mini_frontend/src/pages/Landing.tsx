@@ -10,8 +10,8 @@ const features = [
   { icon: MapPin, title: "Smart Post Office ID", desc: "Automatically identifies the nearest and most efficient post office." },
   { icon: Clock, title: "Delivery ETA Prediction", desc: "ML-powered delivery time estimates using traffic, weather & priority data." },
   { icon: ShieldCheck, title: "Delay Risk Detection", desc: "Proactive alerts when potential delays are detected on your parcel route." },
-  { icon: TrendingUp, title: "Anomaly Detection", desc: "Flags stuck parcels, overloaded offices, and repeated route failures." },
-  { icon: Package, title: "Real-time Tracking", desc: "Live milestone updates with AI-powered predictive status changes." },
+  // { icon: TrendingUp, title: "Anomaly Detection", desc: "Flags stuck parcels, overloaded offices, and repeated route failures." },
+  // { icon: Package, title: "Real-time Tracking", desc: "Live milestone updates with AI-powered predictive status changes." },
 ];
 
 const steps = [
@@ -151,12 +151,12 @@ const Landing = () => {
               transition={{ delay: 0.75, duration: 0.6 }}
               className="mt-14 flex gap-10"
             >
-              {[["99.2%", "Accuracy", "text-orange-400"], ["2.4x", "Faster", "text-violet-400"], ["50K+", "Parcels", "text-indigo-400"]].map(([val, label, color]) => (
+              {/* {[["99.2%", "Accuracy", "text-orange-400"], ["2.4x", "Faster", "text-violet-400"], ["50K+", "Parcels", "text-indigo-400"]].map(([val, label, color]) => (
                 <div key={label}>
                   <div className={`text-2xl font-black ${color}`}>{val}</div>
                   <div className="text-xs font-semibold uppercase tracking-wider text-white/40">{label}</div>
                 </div>
-              ))}
+              ))} */}
             </motion.div>
           </motion.div>
         </div>
