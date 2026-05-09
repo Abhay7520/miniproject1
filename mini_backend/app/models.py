@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from .database import Base
 from datetime import datetime
@@ -15,6 +15,17 @@ class User(Base):
 
     parcels = relationship("Parcel", back_populates="owner")
 
+class PostOffice(Base):
+    __tablename__ = "post_offices"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
+    city = Column(String, index=True)
+    latitude = Column(Float)
+    longitude = Column(Float)
+    pincode = Column(String, nullable=True)
+    current_load = Column(Integer, default=0)
+
 class Parcel(Base):
     __tablename__ = "parcels"
 
@@ -27,10 +38,11 @@ class Parcel(Base):
     origin_city = Column(String)
     destination_city = Column(String)
     weight = Column(Float)
-    status = Column(String, default="Processing") 
-    created_at = Column(DateTime, default=datetime.utcnow)
+    priority = Column(String) # low, medium, high
+    status = Column(String, default="Processing")
     eta = Column(DateTime, nullable=True)
-    risk_level = Column(String, default="Low")
+    delay_risk = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
     
     # Link to User
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
